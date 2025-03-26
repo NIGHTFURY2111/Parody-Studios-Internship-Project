@@ -1,5 +1,7 @@
 using Cinemachine;
 using System;
+using System.Collections;
+using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -14,37 +16,41 @@ public class PlayerStateMachine : MonoBehaviour
     StateFactory stateFactory;
     BaseState currentState;
     public Text speed;
-    public float walkNormalizingTime;
+
     [Header("General Settings")]
     [SerializeField] float gravity;
     [SerializeField] float walkingSpeed;
     [SerializeField] float jumpSpeed;
-    [SerializeField] float slideSpeed;
     [SerializeField] float forceAppliedInAir;
 
     [Header("Camera Settings")]
-    [SerializeField] float lookSpeed;
     [SerializeField] CinemachineVirtualCamera playerCamera;
     [SerializeField] GameObject playerCameraFollowPoint;
     [SerializeField] float lookXLimit;
+    [SerializeField] float lookSpeed;
+
+    [Header("Gravity Settings")]
+    [SerializeField] GameObject gravityPreview;
+    [SerializeField] float maxGravitySwitchingVelocityClamp;
+    [SerializeField] float gravityChangeTime;
+    private bool canSwitchGravity = true;
+    private Vector3 newGravityDirection;
 
     Rigidbody rb;
     CapsuleCollider col;
 
 
-    float tgtSpeed;
     bool isGrounded;
     private float rotationX = 0;
     private float rotationY = 0;
     private float distanceToGround;
-    Vector3 newGravityDirection;
-    private Vector3 moveDirection = Vector3.zero;
    
     private PlayerInputAction playerInput;
     private InputAction move;
     private InputAction camDirection;
     private InputAction jump;
     private InputAction gravityDirection;
+    private Coroutine gravityChangeCoroutine;
 
 
 
@@ -55,7 +61,6 @@ public class PlayerStateMachine : MonoBehaviour
         stateFactory = new(this);
         rb = GetComponent<Rigidbody>();
         col = GetComponent<CapsuleCollider>();
-
 
         move = playerInput.Player.Movement;
         camDirection = playerInput.Player.Camera;
@@ -89,7 +94,6 @@ public class PlayerStateMachine : MonoBehaviour
         lookSpeed *= 0.5f;
         distanceToGround = col.height/2 ;
 
-
         // Lock cursor
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -98,7 +102,6 @@ public class PlayerStateMachine : MonoBehaviour
 
     void Update()
     {
-
         //Debug.Log(PCC._velocityMagnitude);
         Debug.Log(isGrounded);
         //characterController.Move(moveDirection * Time.deltaTime);
@@ -120,7 +123,6 @@ public class PlayerStateMachine : MonoBehaviour
     private void FixedUpdate()
     {
         currentState.FixedState();
-
         ArtificialGravity();
     }
 
@@ -191,37 +193,85 @@ public class PlayerStateMachine : MonoBehaviour
 
     public void switchGravity()
     {
-        if (gravityDirection.inProgress)
+        if (canSwitchGravity)
         {
-            Vector2 input = gravityDirection.ReadValue<Vector2>(); // Read input
-            Vector3 moveDir = (transform.forward * input.y) + (transform.right * input.x); // Get movement direction
+            if (gravityDirection.WasPressedThisFrame())
+            {
+                StartVisualizeGravityChange();
 
-            // Determine the dominant axis efficiently
-            int dominantAxis = (Mathf.Abs(moveDir.x) > Mathf.Abs(moveDir.y) && Mathf.Abs(moveDir.x) > Mathf.Abs(moveDir.z)) ? 0 :
-                               (Mathf.Abs(moveDir.y) > Mathf.Abs(moveDir.z)) ? 1 : 2;
+                if(gravityChangeCoroutine != null)
+                    StopCoroutine(gravityChangeCoroutine);
+            }
 
-            // Create the snapped direction using the dominant axis
-            newGravityDirection = Vector3.zero;
-            newGravityDirection[dominantAxis] = Mathf.Sign(moveDir[dominantAxis]); 
+            else if (gravityDirection.inProgress)
+            {
+                Vector2 input = gravityDirection.ReadValue<Vector2>(); // Read input
+                Vector3 moveDir = (transform.forward * input.y) + (transform.right * input.x); // Get movement direction
 
+                // Determine the dominant axis efficiently
+                int dominantAxis = (Mathf.Abs(moveDir.x) > Mathf.Abs(moveDir.y) && Mathf.Abs(moveDir.x) > Mathf.Abs(moveDir.z)) ? 0 :
+                                   (Mathf.Abs(moveDir.y) > Mathf.Abs(moveDir.z)) ? 1 : 2;
 
-            Debug.Log("Gravity pressed" + newGravityDirection);
+                // Create the snapped direction using the dominant axis
+                newGravityDirection = Vector3.zero;
+                newGravityDirection[dominantAxis] = Mathf.Sign(moveDir[dominantAxis]);
+
+                VisualizeGravityChange();
+
+                Debug.Log("Gravity pressed" + newGravityDirection);
+            }
+            else if (gravityDirection.WasReleasedThisFrame())
+            {
+
+                StopVisualizeGravityChange();
+
+                gravityChangeCoroutine = StartCoroutine(RotateOverTime(newGravityDirection, gravityChangeTime));
+                Debug.Log("Gravity released" + newGravityDirection);
+            }
         }
-        if (gravityDirection.WasReleasedThisFrame())
+    }
+
+    IEnumerator RotateOverTime(Vector3 newGravityDirection, float duration)
+    {
+        canSwitchGravity = false;
+
+        rb.velocity = rb.velocity.normalized *Mathf.Clamp(rb.velocity.magnitude, 0, maxGravitySwitchingVelocityClamp);
+        Quaternion startRotation = transform.rotation;
+        Quaternion targetRotation = Quaternion.FromToRotation(transform.up, -newGravityDirection) * transform.rotation;
+        
+        float elapsed = 0f;
+
+        while (elapsed < duration)
         {
-            //ignore for now, create a coroutine later
-            //// Compute new rotation with snappedDir as the new up direction
-            //Quaternion targetRotation = Quaternion.FromToRotation(transform.up, newGravityDirection) * transform.rotation;
-
-            //// Apply the new rotation smoothly (optional)
-            //transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
-
-            transform.rotation = Quaternion.FromToRotation(transform.up, newGravityDirection) * transform.rotation;
-
-
-
-            Debug.Log("Gravity released" + newGravityDirection);
+            elapsed += Time.deltaTime;
+            transform.rotation = Quaternion.Slerp(startRotation, targetRotation, elapsed / duration);
+            yield return null;
         }
+
+        transform.rotation = targetRotation;  //ensure the rotation is exactly the target rotation 
+        canSwitchGravity = true;
+    }
+
+
+    public void StartVisualizeGravityChange()
+    {
+        
+        gravityPreview.SetActive(true);
+        gravityPreview.transform.position = transform.position; // Match player position
+        gravityPreview.transform.rotation = Quaternion.FromToRotation(transform.up, - newGravityDirection) * transform.rotation;
+    }
+    public void VisualizeGravityChange()
+    {
+        gravityPreview.transform.position = transform.position;
+
+
+        gravityPreview.transform.rotation = Quaternion.Slerp(gravityPreview.transform.rotation, Quaternion.FromToRotation(transform.up, -newGravityDirection) * transform.rotation, 10f * Time.deltaTime);
+            //Quaternion.FromToRotation(transform.up, -newGravityDirection) * transform.rotation;
+    }
+
+    public void StopVisualizeGravityChange()
+    {
+        gravityPreview.SetActive(false);
     }
 
 
@@ -230,20 +280,11 @@ public class PlayerStateMachine : MonoBehaviour
     public float _gravity { get => gravity; set => gravity = value; }
     public float _walkingSpeed { get => walkingSpeed; set => walkingSpeed = value; }
     public float _jumpSpeed { get => jumpSpeed; set => jumpSpeed = value; }
-    public float _slideSpeed { get => slideSpeed; set => slideSpeed = value; }
     public float _forceAppliedInAir { get => forceAppliedInAir; set => forceAppliedInAir = value; }
-
-    public float _moveDirectionX { get { return moveDirection.x; } set { moveDirection.x = value; } }
-    public float _moveDirectionY { get { return moveDirection.y; } set { moveDirection.y = value; } }
-    public float _moveDirectionZ { get { return moveDirection.z; } set { moveDirection.z = value; } }
-    public Vector3 _moveDirection { get { return moveDirection; } set { moveDirection = value; } }
-
     public InputAction _move { get { return move; } set { move = value; } }
     public InputAction _jump { get { return jump; } set { jump = value; } }
     public BaseState _currentState { get { return currentState; } set { currentState = value; } }
     public CinemachineVirtualCamera _playerCamera { get { return playerCamera; } set { playerCamera = value; } }
-    public float _TGTSpeed { get { return tgtSpeed; } set { tgtSpeed = value; } }
-
     public bool _isGrounded { get => isGrounded; }
 
     public Vector3 _player_Up => transform.up;
@@ -253,7 +294,6 @@ public class PlayerStateMachine : MonoBehaviour
     public Vector3 _velocity { get { return rb.velocity; } set { rb.velocity = value; } }
 
     public void _force(Vector3 force, ForceMode mode = ForceMode.Force) => rb.AddForce(force, mode);
-
 
     #endregion
 }

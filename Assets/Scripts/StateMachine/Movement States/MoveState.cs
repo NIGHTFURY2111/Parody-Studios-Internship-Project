@@ -24,11 +24,6 @@ public class MoveState : BaseState
         ctx._velocity = ctx.MovementVector() * ctx._walkingSpeed + ctx._player_Up * ctx._player_Up_velocity ;
         ctx.FaceCamera();
 
-        //ctx._getPCC.calculateAccelration(ctx._TGTSpeed);
-
-
-
-        //ctx._getPCC.Move();
     }
 
     public override void UpdateState()
@@ -41,7 +36,7 @@ public class MoveState : BaseState
     {   //idle dash jump  slide fall
         
         //Fall
-        if (!ctx._isGrounded) //ctx._characterController.isGrounded
+        if (!ctx._isGrounded)
         {
             SwitchState(factory.Fall());
             return;

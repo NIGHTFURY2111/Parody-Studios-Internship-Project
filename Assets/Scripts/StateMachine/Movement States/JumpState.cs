@@ -8,31 +8,15 @@ using UnityEngine.InputSystem;
 
 public class JumpState : BaseState
 {
-    float tgtVelocity;
     bool jumpCompleted;
-    //private float speed;
-    //private bool slideCheck = false;
 
-    float test;
     public JumpState(PlayerStateMachine ctx, StateFactory factory) : base(ctx, factory)
     {
-        //instance = this;
     }
    
     public override void EnterState()
     {
-        //speed = (slideCheck)? ctx._slideSpeed:ctx._walkingSpeed;
-
-
-        //tgtVelocity = ctx._getPCC._velocityMagnitude;
-
         jumpCompleted = false;
-
-
-
-        ctx._moveDirectionY = ctx._jumpSpeed;
-
-
 
         ctx.StartCoroutine(Jumping());
     }
@@ -62,7 +46,7 @@ public class JumpState : BaseState
 
     public override void CheckSwitchState()
     {   
-        //idle
+        //idle OR Fall
         SwitchState( ctx._isGrounded ? factory.Idle(): factory.Fall());
 
         return;    
