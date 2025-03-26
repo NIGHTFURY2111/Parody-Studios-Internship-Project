@@ -8,13 +8,12 @@ using UnityEngine.InputSystem;
 
 public class FallState : BaseState
 {
+    float timeInAir;
     public FallState(PlayerStateMachine ctx, StateFactory factory) : base(ctx, factory)
     {
     }
 
-    public override void EnterState()
-    {
-    }
+    public override void EnterState() { timeInAir = ctx._TimerInAirBeforeGameOver; }
 
     public override void FixedState()
     {
@@ -23,13 +22,20 @@ public class FallState : BaseState
 
     public override void UpdateState()
     {
+        if (timeInAir > 0f) {
+            timeInAir -= Time.deltaTime;
+        }
+        else if (timeInAir <= 0f)
+        {
+            ctx._gameManager.GameLost();
+        }
+
+
         CheckSwitchState();
     }
 
 
-    public override void ExitState()
-    {
-    }
+    public override void ExitState() { }
     public override void CheckSwitchState()
     {   //idle slide
 

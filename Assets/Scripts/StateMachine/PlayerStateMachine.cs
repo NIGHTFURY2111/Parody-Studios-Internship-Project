@@ -1,13 +1,8 @@
 using Cinemachine;
-using System;
 using System.Collections;
-using Unity.Mathematics;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.PlayerLoop;
 using UnityEngine.UI;
-using UnityEngine.Windows;
 
 
 [RequireComponent(typeof(Rigidbody), typeof(CapsuleCollider))]
@@ -22,6 +17,7 @@ public class PlayerStateMachine : MonoBehaviour
     [SerializeField] float walkingSpeed;
     [SerializeField] float jumpSpeed;
     [SerializeField] float forceAppliedInAir;
+    [SerializeField] float TimerInAirBeforeGameOver;
 
     [Header("Camera Settings")]
     [SerializeField] CinemachineVirtualCamera playerCamera;
@@ -46,6 +42,7 @@ public class PlayerStateMachine : MonoBehaviour
     private float distanceToGround;
    
     private PlayerInputAction playerInput;
+    private GameManager gameManager;
     private InputAction move;
     private InputAction camDirection;
     private InputAction jump;
@@ -61,6 +58,7 @@ public class PlayerStateMachine : MonoBehaviour
         stateFactory = new(this);
         rb = GetComponent<Rigidbody>();
         col = GetComponent<CapsuleCollider>();
+        gameManager = FindObjectOfType<GameManager>();
 
         move = playerInput.Player.Movement;
         camDirection = playerInput.Player.Camera;
@@ -78,8 +76,6 @@ public class PlayerStateMachine : MonoBehaviour
 
     private void OnDisable()
     {
-        GameManager.OnCheckpointReached -= (int score) => Debug.Log("Score: " + score);
-
         move.Disable();
         jump.Disable();
         camDirection.Disable();
@@ -279,10 +275,14 @@ public class PlayerStateMachine : MonoBehaviour
     public float _walkingSpeed { get => walkingSpeed; set => walkingSpeed = value; }
     public float _jumpSpeed { get => jumpSpeed; set => jumpSpeed = value; }
     public float _forceAppliedInAir { get => forceAppliedInAir; set => forceAppliedInAir = value; }
+
+    public float _TimerInAirBeforeGameOver => TimerInAirBeforeGameOver;
     public InputAction _move { get { return move; } set { move = value; } }
     public InputAction _jump { get { return jump; } set { jump = value; } }
     public BaseState _currentState { get { return currentState; } set { currentState = value; } }
     public CinemachineVirtualCamera _playerCamera { get { return playerCamera; } set { playerCamera = value; } }
+
+    public GameManager _gameManager { get { return gameManager; } set { gameManager = value; } }
     public bool _isGrounded { get => isGrounded; }
 
     public Vector3 _player_Up => transform.up;

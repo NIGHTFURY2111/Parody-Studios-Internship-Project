@@ -20,20 +20,13 @@ public class JumpState : BaseState
 
         ctx.StartCoroutine(Jumping());
     }
-    public override void FixedState()
-    {
-    }
 
-    public override void UpdateState()
+    public override void UpdateState() 
     {
         if (jumpCompleted) 
         {
             CheckSwitchState();
         }
-        
-    }
-    public override void ExitState()
-    {
     }
 
     IEnumerator Jumping()
@@ -44,6 +37,7 @@ public class JumpState : BaseState
         jumpCompleted = true;
     }
 
+    public override void ExitState() { }
     public override void CheckSwitchState()
     {   
         //idle OR Fall

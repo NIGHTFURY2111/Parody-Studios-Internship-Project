@@ -9,9 +9,6 @@ public class IdleState : BaseState
     public IdleState(PlayerStateMachine ctx, StateFactory factory) : base(ctx, factory)
     {
     }
-    public override void ExitState()
-    {  
-    }
 
     public override void EnterState()
     {
@@ -23,6 +20,7 @@ public class IdleState : BaseState
         CheckSwitchState();
     }
 
+    public override void ExitState() { }
     public override void CheckSwitchState()
     {   //jump walk dash slide fall
         

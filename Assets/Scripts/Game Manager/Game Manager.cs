@@ -11,21 +11,24 @@ public class GameManager : MonoBehaviour
     [SerializeField] TextMeshProUGUI scoreText;
     [SerializeField] double RemainingTimeSeconds;
     [SerializeField] GameObject CheckPointParent;
+    [SerializeField] GameObject GameOverPanel;
 
-    int checkPoints;
 
     public static event Action<int> OnCheckpointReached;
-    public static event Action<int> OnGameLost;
-    public static event Action<int> OnGameWon;
+    public static event Action<bool> OnGameOver;
+    public int checkpointsLeft => checkPoints;
 
+    int checkPoints;
 
     private void Start()
     {
         checkPoints = CheckPointParent.transform.childCount;
         updateScore();
         OnCheckpointReached += updateScore;
+        OnGameOver += GameOver;
 
     }
+
     void Update()
     {
         updateTimer();
@@ -35,19 +38,24 @@ public class GameManager : MonoBehaviour
     {
         checkPoints--;
         OnCheckpointReached?.Invoke(checkPoints);
-        Debug.Log("Checkpoint reached EVENT RECIEVED");
+
+        if (checkPoints == 0)
+        {
+            GameWon();
+        }
+        Debug.Log("Checkpoint reached");
     }
 
     public void GameLost()
     {
-        OnGameLost?.Invoke(checkPoints);
-        Debug.Log("Game Lost EVENT RECIEVED");
+        OnGameOver?.Invoke(false);
+        Debug.Log("Game Lost");
     }
 
     public void GameWon()
     {
-        OnGameWon?.Invoke(checkPoints);
-        Debug.Log("Game Won EVENT RECIEVED");
+        OnGameOver?.Invoke(true);
+        Debug.Log("Game Won");
     }
 
 
@@ -76,6 +84,13 @@ public class GameManager : MonoBehaviour
     void updateScore(int _ = -1)
     {
         scoreText.text = "Checkpoint Left: " + checkPoints;
+    }
+
+    void GameOver(bool GameWon)
+    {
+        GameOverPanel.SetActive(true);
+        Time.timeScale = 0;
+        GameOverPanel.transform.GetChild(1).GetComponent<TextMeshProUGUI>().text =  GameWon? "You Win" : "You Lost";
     }
 
 }
