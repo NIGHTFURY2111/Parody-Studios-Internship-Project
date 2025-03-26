@@ -78,6 +78,8 @@ public class PlayerStateMachine : MonoBehaviour
 
     private void OnDisable()
     {
+        GameManager.OnCheckpointReached -= (int score) => Debug.Log("Score: " + score);
+
         move.Disable();
         jump.Disable();
         camDirection.Disable();
@@ -217,16 +219,12 @@ public class PlayerStateMachine : MonoBehaviour
                 newGravityDirection[dominantAxis] = Mathf.Sign(moveDir[dominantAxis]);
 
                 VisualizeGravityChange();
-
-                Debug.Log("Gravity pressed" + newGravityDirection);
             }
             else if (gravityDirection.WasReleasedThisFrame())
             {
-
                 StopVisualizeGravityChange();
 
                 gravityChangeCoroutine = StartCoroutine(RotateOverTime(newGravityDirection, gravityChangeTime));
-                Debug.Log("Gravity released" + newGravityDirection);
             }
         }
     }

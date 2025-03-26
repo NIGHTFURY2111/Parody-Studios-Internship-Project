@@ -12,8 +12,6 @@ public class FallState : BaseState
     {
     }
 
-    
-
     public override void EnterState()
     {
     }

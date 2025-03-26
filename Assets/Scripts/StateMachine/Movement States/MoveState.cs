@@ -15,8 +15,6 @@ public class MoveState : BaseState
 
     public override void EnterState()
     {
-        //ctx._TGTSpeed = ctx._walkingSpeed;
-
     }
 
     public override void FixedState()
@@ -36,7 +34,7 @@ public class MoveState : BaseState
     {   //idle dash jump  slide fall
         
         //Fall
-        if (!ctx._isGrounded)
+        if (!ctx._isGrounded) 
         {
             SwitchState(factory.Fall());
             return;

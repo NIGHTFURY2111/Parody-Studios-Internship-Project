@@ -34,12 +34,3 @@ public class StateFactory
     }
     //DO THE SAME FOR ALL CLASSES
 }
-
-[System.Flags]
-public enum StateEnum
-{
-    move = 1<<0,
-    idle = 1<<1,
-    jump = 1<<2,
-    fall = 1<<3,
-}
