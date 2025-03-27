@@ -10,10 +10,16 @@ public class MoveState : BaseState
     {
     }
 
-    public override void EnterState() { }
-
+    public override void EnterState()
+    {
+        //ctx._anim.Play("Walk");
+        ctx._anim.SetBool("IsGrounded", true);
+        ctx._anim.SetFloat("Speed", ctx._playerVelocityInPlane.magnitude);
+    }
     public override void UpdateState()
     {
+        // Update the animation speed parameter based on movement
+        ctx._anim.SetFloat("Speed", ctx._playerVelocityInPlane.magnitude);
         CheckSwitchState();
     }
 

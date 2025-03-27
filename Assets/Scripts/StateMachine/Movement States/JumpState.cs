@@ -13,14 +13,14 @@ public class JumpState : BaseState
     public JumpState(PlayerStateMachine ctx, StateFactory factory) : base(ctx, factory)
     {
     }
-   
+
     public override void EnterState()
     {
         jumpCompleted = false;
-
+        //ctx._anim.Play("Fall");  // Using fall animation for jump
+        ctx._anim.SetBool("IsGrounded", false);
         ctx.StartCoroutine(Jumping());
     }
-
     public override void UpdateState() 
     {
         if (jumpCompleted) 

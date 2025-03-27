@@ -13,6 +13,9 @@ public class IdleState : BaseState
     public override void EnterState()
     {
         ctx._velocity = Vector3.zero;
+        //ctx._anim.Play("Idle");
+        ctx._anim.SetBool("IsGrounded", true);
+        ctx._anim.SetFloat("Speed", 0f);
     }
 
     public override void UpdateState()

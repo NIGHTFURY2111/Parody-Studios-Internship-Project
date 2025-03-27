@@ -13,7 +13,12 @@ public class FallState : BaseState
     {
     }
 
-    public override void EnterState() { timeInAir = ctx._TimerInAirBeforeGameOver; }
+    public override void EnterState() 
+    { 
+        timeInAir = ctx._TimerInAirBeforeGameOver;
+        //ctx._anim.Play("Fall");
+        ctx._anim.SetBool("IsGrounded", false);
+    }
 
     public override void FixedState()
     {
@@ -35,7 +40,7 @@ public class FallState : BaseState
     }
 
 
-    public override void ExitState() { }
+    public override void ExitState() { ctx._anim.SetBool("IsGrounded", true); }
     public override void CheckSwitchState()
     {   //idle slide
 

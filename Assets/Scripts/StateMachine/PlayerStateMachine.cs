@@ -1,4 +1,5 @@
 using Cinemachine;
+using Cinemachine.Utility;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -18,6 +19,7 @@ public class PlayerStateMachine : MonoBehaviour
     [SerializeField] float jumpSpeed;
     [SerializeField] float forceAppliedInAir;
     [SerializeField] float TimerInAirBeforeGameOver;
+    [SerializeField] GameObject PlayerModel;
 
     [Header("Camera Settings")]
     [SerializeField] CinemachineVirtualCamera playerCamera;
@@ -43,6 +45,7 @@ public class PlayerStateMachine : MonoBehaviour
    
     private PlayerInputAction playerInput;
     private GameManager gameManager;
+    private Animator anim;
     private InputAction move;
     private InputAction camDirection;
     private InputAction jump;
@@ -59,7 +62,7 @@ public class PlayerStateMachine : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         col = GetComponent<CapsuleCollider>();
         gameManager = FindObjectOfType<GameManager>();
-
+        PlayerModel.TryGetComponent<Animator>( out anim);
         move = playerInput.Player.Movement;
         camDirection = playerInput.Player.Camera;
         jump = playerInput.Player.Jump;
@@ -101,7 +104,7 @@ public class PlayerStateMachine : MonoBehaviour
     void Update()
     {
         //Debug.Log(PCC._velocityMagnitude);
-        Debug.Log(isGrounded);
+        Debug.Log(_playerVelocityInPlane);
         //characterController.Move(moveDirection * Time.deltaTime);
 
         // Move the controller
@@ -113,8 +116,8 @@ public class PlayerStateMachine : MonoBehaviour
         //displays the current speed
         //speed.text = Math.Round(PCC._currentVelocityMagnitude).ToString();
 
-        CheckGrounded();
-
+        //CheckGrounded();
+        isGrounded = true;
         switchGravity();
     }
 
@@ -126,7 +129,8 @@ public class PlayerStateMachine : MonoBehaviour
 
     public void CheckGrounded()
     {
-        isGrounded = Physics.Raycast(transform.position + col.center, -transform.up, out RaycastHit hit, distanceToGround + .8f);
+        isGrounded = Physics.Raycast(transform.TransformPoint(col.center), -transform.up, out RaycastHit hit, col.height/2  );
+        Debug.DrawRay(transform.TransformPoint(col.center), -transform.up * (col.height / 2), Color.red);
     }
 
     //private void LateUpdate()
@@ -283,7 +287,11 @@ public class PlayerStateMachine : MonoBehaviour
     public CinemachineVirtualCamera _playerCamera { get { return playerCamera; } set { playerCamera = value; } }
 
     public GameManager _gameManager { get { return gameManager; } set { gameManager = value; } }
+
+    public Animator _anim { get { return anim; } set { anim = value; } }
     public bool _isGrounded { get => isGrounded; }
+
+    public Vector2 _playerVelocityInPlane => Vector3.ProjectOnPlane(_velocity, transform.up);
 
     public Vector3 _player_Up => transform.up;
     public float _player_Up_velocity => Vector3.Dot(rb.velocity, transform.up);
