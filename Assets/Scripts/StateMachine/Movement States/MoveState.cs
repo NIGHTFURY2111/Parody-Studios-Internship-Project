@@ -41,7 +41,7 @@ public class MoveState : BaseState
             return;
         }
         //Idle
-        if (ctx.MoveDir().magnitude == 0f)
+        if (ctx.MoveDir.magnitude == 0f)
         {
             SwitchState(factory.Idle());
             return;

@@ -22,7 +22,7 @@ public class PlayerStateMachine : MonoBehaviour
     [SerializeField] GameObject PlayerModel;
 
     [Header("Camera Settings")]
-    [SerializeField] CinemachineVirtualCamera playerCamera;
+    [SerializeField] CinemachineFreeLook playerCamera;
     [SerializeField] GameObject playerCameraFollowPoint;
     [SerializeField] float lookXLimit;
     [SerializeField] float lookSpeed;
@@ -140,25 +140,19 @@ public class PlayerStateMachine : MonoBehaviour
 
     public void cameraMovement()
     {
-        rotationX += -LookDir().y * lookSpeed;
+        rotationX += -LookDir.y * lookSpeed;
         rotationX = Mathf.Clamp(rotationX, -lookXLimit, lookXLimit);
         
-        rotationY += LookDir().x * lookSpeed;
+        rotationY += LookDir.x * lookSpeed;
 
         playerCameraFollowPoint.transform.localRotation = Quaternion.Euler(rotationX, rotationY, 0);
 
 
     }
 
-    public Vector2 MoveDir()
-    {
-        return move.ReadValue<Vector2>();
-    }
+    public Vector2 MoveDir => move.ReadValue<Vector2>();
 
-    public Vector2 LookDir()
-    {
-        return camDirection.ReadValue<Vector2>();
-    }
+    public Vector2 LookDir => camDirection.ReadValue<Vector2>();
 
     public Vector3 MovementVector()
     {
@@ -166,7 +160,7 @@ public class PlayerStateMachine : MonoBehaviour
 
         Vector3 forward = Vector3.ProjectOnPlane(Camera.main.transform.forward, transform.up);
         Vector3 right = Vector3.ProjectOnPlane(Camera.main.transform.right, transform.up); 
-        Vector3 outp = forward * MoveDir().y + right * MoveDir().x;
+        Vector3 outp = forward * MoveDir.y + right * MoveDir.x;
         return outp;
     }
 
@@ -208,17 +202,9 @@ public class PlayerStateMachine : MonoBehaviour
             else if (gravityDirection.inProgress)
             {
                 Vector2 input = gravityDirection.ReadValue<Vector2>(); // Read input
-                Vector3 moveDir = (transform.forward * input.y) + (transform.right * input.x); // Get movement direction
+                Vector3 RotateTowards = (transform.forward * input.y) + (transform.right * input.x); // Get rotation direction
 
-                // Determine the dominant axis efficiently
-                int dominantAxis = (Mathf.Abs(moveDir.x) > Mathf.Abs(moveDir.y) && Mathf.Abs(moveDir.x) > Mathf.Abs(moveDir.z)) ? 0 :
-                                   (Mathf.Abs(moveDir.y) > Mathf.Abs(moveDir.z)) ? 1 : 2;
-
-                // Create the snapped direction using the dominant axis
-                newGravityDirection = Vector3.zero;
-                newGravityDirection[dominantAxis] = Mathf.Sign(moveDir[dominantAxis]);
-
-                VisualizeGravityChange();
+                VisualizeGravityChange(input,RotateTowards);
             }
             else if (gravityDirection.WasReleasedThisFrame())
             {
@@ -256,15 +242,26 @@ public class PlayerStateMachine : MonoBehaviour
         
         gravityPreview.SetActive(true);
         gravityPreview.transform.position = transform.position; // Match player position
+        gravityPreview.transform.rotation= transform.rotation; // Match player position
         gravityPreview.transform.rotation = Quaternion.FromToRotation(transform.up, - newGravityDirection) * transform.rotation;
     }
-    public void VisualizeGravityChange()
+    public void VisualizeGravityChange(Vector2 input, Vector3 RotateTowards)
     {
+        // Determine the dominant axis efficiently
+        int dominantAxis = (Mathf.Abs(RotateTowards.x) > Mathf.Abs(RotateTowards.y) && Mathf.Abs(RotateTowards.x) > Mathf.Abs(RotateTowards.z)) ? 0 :
+                            (Mathf.Abs(RotateTowards.y) > Mathf.Abs(RotateTowards.z)) ? 1 : 2;
+
+        // Create the snapped direction using the dominant axis
+        newGravityDirection = Vector3.zero;
+        newGravityDirection[dominantAxis] = Mathf.Sign(RotateTowards[dominantAxis]);
+
+
+        // Update the preview position and rotation
         gravityPreview.transform.position = transform.position;
-
-
-        gravityPreview.transform.rotation = Quaternion.Slerp(gravityPreview.transform.rotation, Quaternion.FromToRotation(transform.up, -newGravityDirection) * transform.rotation, 10f * Time.deltaTime);
-            //Quaternion.FromToRotation(transform.up, -newGravityDirection) * transform.rotation;
+        gravityPreview.transform.rotation = Quaternion.Slerp(
+            gravityPreview.transform.rotation, 
+            Quaternion.FromToRotation(transform.up, -newGravityDirection) * transform.rotation * Quaternion.Euler(0,180,0), // Rotate 180 degrees to match the preview to the Player's direction
+            10f * Time.deltaTime);
     }
 
     public void StopVisualizeGravityChange()
@@ -284,7 +281,7 @@ public class PlayerStateMachine : MonoBehaviour
     public InputAction _move { get { return move; } set { move = value; } }
     public InputAction _jump { get { return jump; } set { jump = value; } }
     public BaseState _currentState { get { return currentState; } set { currentState = value; } }
-    public CinemachineVirtualCamera _playerCamera { get { return playerCamera; } set { playerCamera = value; } }
+    public CinemachineFreeLook _playerCamera { get { return playerCamera; } set { playerCamera = value; } }
 
     public GameManager _gameManager { get { return gameManager; } set { gameManager = value; } }
 
