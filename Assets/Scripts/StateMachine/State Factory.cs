@@ -1,3 +1,8 @@
+/// <summary>
+/// Factory class responsible for creating and managing player state instances.
+/// Implements the Factory pattern to centralize state creation and provide 
+/// access to states through well-defined methods.
+/// </summary>
 public class StateFactory
 {
     PlayerStateMachine _context;

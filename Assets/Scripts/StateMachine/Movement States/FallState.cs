@@ -1,11 +1,10 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.InputSystem;
 
+
+/// <summary>
+/// Represents the falling state of the player.
+/// This state is active when the player is airborne and not in a controlled jump.
+/// </summary>
 public class FallState : BaseState
 {
     float timeInAir;
@@ -22,7 +21,7 @@ public class FallState : BaseState
 
     public override void FixedState()
     {
-        ctx._force(ctx.MovementVector() * ctx._forceAppliedInAir, ForceMode.Acceleration);
+        ctx.Force(ctx.MovementVector() * ctx._forceAppliedInAir, ForceMode.Acceleration);
     }
 
     public override void UpdateState()
@@ -41,6 +40,11 @@ public class FallState : BaseState
 
 
     public override void ExitState() { ctx._anim.SetBool("IsGrounded", true); }
+
+    /// <summary>
+    /// Checks conditions for transitioning to other states.
+    /// Currently only transitions to IdleState when player becomes grounded.
+    /// </summary>
     public override void CheckSwitchState()
     {   //idle slide
 

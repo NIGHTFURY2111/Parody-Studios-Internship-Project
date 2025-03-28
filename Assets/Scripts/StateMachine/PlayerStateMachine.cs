@@ -1,11 +1,11 @@
-using Cinemachine;
-using Cinemachine.Utility;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.UI;
 
-
+/// <summary>
+/// Main player controller implementing a state machine pattern to handle player movement,
+/// gravity manipulation, and interactions.
+/// </summary>
 [RequireComponent(typeof(Rigidbody), typeof(CapsuleCollider))]
 public class PlayerStateMachine : MonoBehaviour
 {
@@ -18,27 +18,20 @@ public class PlayerStateMachine : MonoBehaviour
     [SerializeField] float timeInAirBeforeGameOver;
     [SerializeField] GameObject PlayerModel;
 
-    [Header("Camera Settings")]
-    [SerializeField] float lookXLimit;
-    [SerializeField] float lookSpeed;
-
     [Header("Gravity Settings")]
     [SerializeField] GameObject gravityPreview;
-    [SerializeField] float maxVelocityClampWhenGravitySwitching;
+    [SerializeField] float velocityClampOnGravitySwitching;
     [SerializeField] float gravityChangeTime;
     #endregion
 
-    bool isGrounded;   
+    private bool isGrounded;   
     private bool canSwitchGravity = true;
-    private bool canVisualizeGravity = true;
     private Vector3 newGravityDirection;
 
     private Camera mainCamera;
-
     private StateFactory stateFactory;
     private BaseState currentState;
     private Rigidbody rb;
-    private CapsuleCollider col;
     private PlayerInputAction playerInput;
     private GameManager gameManager;
     private Coroutine gravityChangeCoroutine;
@@ -46,10 +39,7 @@ public class PlayerStateMachine : MonoBehaviour
     private Animator anim;
 
     private InputAction move;
-    private InputAction camDirection;
     private InputAction jump;
-    private InputAction gravityDirection;
-    private InputAction setNewGravity;
 
 
 
@@ -59,7 +49,6 @@ public class PlayerStateMachine : MonoBehaviour
         PlayerModel.TryGetComponent<Animator>( out anim);
         gameManager = FindObjectOfType<GameManager>();
         rb = GetComponent<Rigidbody>();
-        col = GetComponent<CapsuleCollider>();
         mainCamera = Camera.main;
 
 
@@ -67,28 +56,19 @@ public class PlayerStateMachine : MonoBehaviour
         stateFactory = new(this);
 
         move = playerInput.Player.Movement;
-        camDirection = playerInput.Player.Camera;
         jump = playerInput.Player.Jump;
-        gravityDirection = playerInput.Player.SwitchGravity;
-        setNewGravity = playerInput.Player.SetNewGravity;
     }
 
     private void OnEnable()
     {
         move.Enable();
         jump.Enable();
-        camDirection.Enable();
-        gravityDirection.Enable();
-        setNewGravity.Enable();
     }
 
     private void OnDisable()
     {
         move.Disable();
         jump.Disable();
-        camDirection.Disable();
-        gravityDirection.Disable();
-        setNewGravity.Disable();
     }
     #endregion
 
@@ -118,44 +98,57 @@ public class PlayerStateMachine : MonoBehaviour
         ArtificialGravity();
     }
 
+
+    /// <summary>
+    /// Determines if the player is currently grounded using a raycast.
+    /// </summary>
     public void CheckGrounded()
     {
         Vector3 position = PlayerModel.transform.position;
         Vector3 direction= PlayerModel.transform.up;
 
-        //isGrounded = Physics.SphereCast(position, col.radius, -direction, out _, 0.3f);
-
         isGrounded = Physics.Raycast(position + direction * 0.2f, -direction, 0.3f);
     }
 
-    //public void cameraMovement()
-    //{ Not needed as we using Cinemachine now to handle camera movement
-
-    //    //rotationX += -LookDir.y * lookSpeed;
-    //    //rotationX = Mathf.Clamp(rotationX, -lookXLimit, lookXLimit);
-        
-    //    //rotationY += LookDir.x * lookSpeed;
-
-    //    //playerCameraFollowPoint.transform.localRotation = Quaternion.Euler(rotationX, rotationY, 0);
-    //}
-
+    /// <summary>
+    /// Gets the current movement input direction.
+    /// </summary>
     public Vector2 MoveDir => move.ReadValue<Vector2>();
 
-    public Vector2 LookDir => camDirection.ReadValue<Vector2>();
 
+    /// <summary>Adds a force to the player.</summary>
+    /// <param name="force">The force to apply.</param>
+    /// <param name="mode">The force mode to use.</param>
+    public void Force(Vector3 force, ForceMode mode = ForceMode.Force) => rb.AddForce(force, mode);
+
+    /// <summary>
+    /// Gets the camera's forward direction projected onto the player's plane.
+    /// </summary>
     public Vector3 CameraForwardInPlayerPlane => Vector3.ProjectOnPlane(mainCamera.transform.forward, transform.up);
+    
+    /// <summary>
+    /// Gets the camera's right direction projected onto the player's plane.
+    /// </summary>
     public Vector3 CameraRightInPlayerPlane => Vector3.ProjectOnPlane(mainCamera.transform.right, transform.up);
-
+    
+    
+    
+    /// <summary>
+    /// Calculates the movement vector based on input and camera orientation.
+    /// </summary>
+    /// <returns>The movement direction vector relative to camera orientation.</returns>
     public Vector3 MovementVector()
     {
-        // We are grounded, so recalculate move direction based on axes
-
         Vector3 forward = CameraForwardInPlayerPlane;
         Vector3 right = CameraRightInPlayerPlane; 
         Vector3 outp = forward * MoveDir.y + right * MoveDir.x;
         return outp;
     }
 
+    /// <summary>
+    /// Rotates the player model to face the movement direction.
+    /// Only rotates when there is movement input.
+    /// </summary>
     public void FaceCamera()
     {
         // Rotate the player model to face the camera
@@ -164,12 +157,24 @@ public class PlayerStateMachine : MonoBehaviour
     }
 
 
+    /// <summary>
+    /// Applies gravity to the player, with different force when grounded vs in air.
+    /// </summary>
     public void ArtificialGravity()
     {
         float gravityForce = isGrounded ? 1f : gravity;
         rb.AddForce(-transform.up * gravityForce, ForceMode.Acceleration);
     }
 
+
+
+
+    /// <summary>
+    /// Coroutine that rotates the player over time when changing gravity direction.
+    /// </summary>
+    /// <param name="newGravityDirection">Target gravity direction.</param>
+    /// <param name="duration">Duration of the rotation in seconds.</param>
+    /// <returns>IEnumerator for coroutine execution.</returns>
     IEnumerator RotateOverTime(Vector3 newGravityDirection, float duration)
     {
         canSwitchGravity = false;
@@ -181,7 +186,7 @@ public class PlayerStateMachine : MonoBehaviour
 
         while (elapsed < duration)
         {
-            rb.velocity = rb.velocity.normalized *Mathf.Clamp(rb.velocity.magnitude, 0, maxVelocityClampWhenGravitySwitching);
+            rb.velocity = rb.velocity.normalized *Mathf.Clamp(rb.velocity.magnitude, 0, velocityClampOnGravitySwitching);
             
             elapsed += Time.deltaTime;
             transform.rotation = Quaternion.Slerp(startRotation, targetRotation, elapsed / duration);
@@ -191,6 +196,16 @@ public class PlayerStateMachine : MonoBehaviour
         transform.rotation = targetRotation;  //ensure the rotation is exactly the target rotation 
         canSwitchGravity = true;
     }
+
+
+
+
+    /// <summary>
+    /// Coroutine that animates the gravity preview rotation.
+    /// </summary>
+    /// <param name="newGravityDirection">Target gravity direction.</param>
+    /// <param name="duration">Duration of the preview animation in seconds.</param>
+    /// <returns>IEnumerator for coroutine execution.</returns>
     IEnumerator VisualizeGravityOverTime(Vector3 newGravityDirection, float duration)
     {
 
@@ -210,6 +225,11 @@ public class PlayerStateMachine : MonoBehaviour
     }
 
 
+
+    /// <summary>
+    /// Handles the gravity direction change visualization based on input.
+    /// </summary>
+    /// <param name="gravitySwitchDirection">Input action context for gravity direction.</param>
     public void VisualizeGravityChange(InputAction.CallbackContext gravitySwitchDirection)
     {
         if (canSwitchGravity)
@@ -236,7 +256,11 @@ public class PlayerStateMachine : MonoBehaviour
         }
     }
 
-
+    /// <summary>
+    /// Updates the new gravity direction based on input values.
+    /// Determines the dominant axis for gravity change.
+    /// </summary>
+    /// <param name="input">Input direction for gravity change.</param>
     public void UpdateNewGravityDirection(Vector2 input)
     {
         Vector3 RotateTowards = ( CameraForwardInPlayerPlane * input.y) + (CameraRightInPlayerPlane * input.x); // Get rotation direction
@@ -250,6 +274,11 @@ public class PlayerStateMachine : MonoBehaviour
         newGravityDirection[dominantAxis] = Mathf.Sign(RotateTowards[dominantAxis]);
     }
 
+
+    /// <summary>
+    /// Confirms and applies the new gravity direction when input is received.
+    /// </summary>
+    /// <param name="confirmGravityChange">Input action context for confirming gravity change.</param>
     public void SetNewGravityDirection(InputAction.CallbackContext confirmGravityChange)
     {
         if( gravityPreview.activeSelf && confirmGravityChange.started)
@@ -264,7 +293,7 @@ public class PlayerStateMachine : MonoBehaviour
 
 
 
-    #region getters and setters (DO NOT OPEN IF NOT NECESSARY, BRAINROT GURANTEED)
+    #region getters and setters
     public float _gravity { get => gravity; set => gravity = value; }
     public float _walkingSpeed { get => walkingSpeed; set => walkingSpeed = value; }
     public float _jumpSpeed { get => jumpSpeed; set => jumpSpeed = value; }
@@ -289,7 +318,6 @@ public class PlayerStateMachine : MonoBehaviour
 
     public Vector3 _velocity { get => rb.velocity; set => rb.velocity = value; }
 
-    public void _force(Vector3 force, ForceMode mode = ForceMode.Force) => rb.AddForce(force, mode);
 
     #endregion
 }

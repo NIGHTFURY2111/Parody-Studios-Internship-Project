@@ -1,8 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.InputSystem;
+/// <summary>
+/// Represents the movement state of the player.
+/// This state is active when the player is moving while grounded.
+/// </summary>
 public class MoveState : BaseState
 {
    
@@ -10,6 +9,10 @@ public class MoveState : BaseState
     {
     }
 
+    /// <summary>
+    /// Called when entering the move state.
+    /// Sets animation parameters to reflect grounded movement.
+    /// </summary>
     public override void EnterState()
     {
         //ctx._anim.Play("Walk");
@@ -31,6 +34,14 @@ public class MoveState : BaseState
 
 
     public override void ExitState() { }
+
+    /// <summary>
+    /// Checks conditions for transitioning to other states.
+    /// State transitions can occur when:
+    /// - Player becomes airborne (to FallState)
+    /// - No movement input is detected (to IdleState)
+    /// - Jump button is pressed (to JumpState)
+    /// </summary>
     public override void CheckSwitchState()
     {   //idle dash jump  slide fall
         

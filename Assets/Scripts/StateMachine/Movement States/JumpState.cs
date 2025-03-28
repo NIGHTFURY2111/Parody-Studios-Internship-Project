@@ -1,11 +1,10 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using System;
-using UnityEngine.EventSystems;
-using UnityEngine.InputSystem;
 
-
+/// <summary>
+/// Represents the jumping state of the player.
+/// This state is active when the player initiates a jump from the ground.
+/// </summary>
 public class JumpState : BaseState
 {
     bool jumpCompleted;
@@ -29,6 +28,11 @@ public class JumpState : BaseState
         }
     }
 
+    /// <summary>
+    /// Coroutine that handles the jumping physics.
+    /// Adds upward velocity to simulate a jump and then waits briefly before allowing state transitions.
+    /// </summary>
+    /// <returns>IEnumerator for coroutine execution.</returns>
     IEnumerator Jumping()
     {
         ctx._velocity += ctx._player_Up * ctx._jumpSpeed;
@@ -38,6 +42,12 @@ public class JumpState : BaseState
     }
 
     public override void ExitState() { }
+
+
+    /// <summary>
+    /// Checks conditions for transitioning to other states.
+    /// Transitions to IdleState if grounded, or to FallState if airborne.
+    /// </summary>
     public override void CheckSwitchState()
     {   
         //idle OR Fall

@@ -1,9 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.InputSystem;
 
+    /// <summary>
+    /// Represents the idle state of the player.
+    /// This state is active when the player is stationary and grounded.
+    /// </summary>
 public class IdleState : BaseState
 {
     public IdleState(PlayerStateMachine ctx, StateFactory factory) : base(ctx, factory)
@@ -24,6 +24,14 @@ public class IdleState : BaseState
     }
 
     public override void ExitState() { }
+
+    /// <summary>
+    /// Checks conditions for transitioning to other states.
+    /// State transitions can occur when:
+    /// - Movement input is detected (to MoveState)
+    /// - Jump button is pressed (to JumpState)
+    /// - Player becomes airborne (to FallState)
+    /// </summary>
     public override void CheckSwitchState()
     {   //jump walk dash slide fall
         
