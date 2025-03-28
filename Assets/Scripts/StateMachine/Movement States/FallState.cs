@@ -15,7 +15,7 @@ public class FallState : BaseState
 
     public override void EnterState() 
     { 
-        timeInAir = ctx._TimerInAirBeforeGameOver;
+        timeInAir = ctx._timeInAirBeforeGameOver;
         //ctx._anim.Play("Fall");
         ctx._anim.SetBool("IsGrounded", false);
     }
@@ -27,15 +27,15 @@ public class FallState : BaseState
 
     public override void UpdateState()
     {
-        if (timeInAir > 0f) {
+        if (timeInAir > 0f) 
+        {
             timeInAir -= Time.deltaTime;
         }
-        else if (timeInAir <= 0f)
+        else
         {
             ctx._gameManager.GameLost();
         }
-
-
+        ctx.FaceCamera();
         CheckSwitchState();
     }
 

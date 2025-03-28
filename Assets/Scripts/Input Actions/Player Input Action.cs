@@ -62,6 +62,15 @@ public partial class @PlayerInputAction: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Set New Gravity"",
+                    ""type"": ""Button"",
+                    ""id"": ""04626b06-53b7-4ce3-8efb-78cf2cdf4dd3"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -196,6 +205,17 @@ public partial class @PlayerInputAction: IInputActionCollection2, IDisposable
                     ""action"": ""Switch Gravity"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""d039992d-6537-4966-a781-cde49880111b"",
+                    ""path"": ""<Keyboard>/enter"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Set New Gravity"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         },
@@ -785,6 +805,7 @@ public partial class @PlayerInputAction: IInputActionCollection2, IDisposable
         m_Player_Camera = m_Player.FindAction("Camera", throwIfNotFound: true);
         m_Player_Jump = m_Player.FindAction("Jump", throwIfNotFound: true);
         m_Player_SwitchGravity = m_Player.FindAction("Switch Gravity", throwIfNotFound: true);
+        m_Player_SetNewGravity = m_Player.FindAction("Set New Gravity", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -862,6 +883,7 @@ public partial class @PlayerInputAction: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Camera;
     private readonly InputAction m_Player_Jump;
     private readonly InputAction m_Player_SwitchGravity;
+    private readonly InputAction m_Player_SetNewGravity;
     public struct PlayerActions
     {
         private @PlayerInputAction m_Wrapper;
@@ -870,6 +892,7 @@ public partial class @PlayerInputAction: IInputActionCollection2, IDisposable
         public InputAction @Camera => m_Wrapper.m_Player_Camera;
         public InputAction @Jump => m_Wrapper.m_Player_Jump;
         public InputAction @SwitchGravity => m_Wrapper.m_Player_SwitchGravity;
+        public InputAction @SetNewGravity => m_Wrapper.m_Player_SetNewGravity;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -891,6 +914,9 @@ public partial class @PlayerInputAction: IInputActionCollection2, IDisposable
             @SwitchGravity.started += instance.OnSwitchGravity;
             @SwitchGravity.performed += instance.OnSwitchGravity;
             @SwitchGravity.canceled += instance.OnSwitchGravity;
+            @SetNewGravity.started += instance.OnSetNewGravity;
+            @SetNewGravity.performed += instance.OnSetNewGravity;
+            @SetNewGravity.canceled += instance.OnSetNewGravity;
         }
 
         private void UnregisterCallbacks(IPlayerActions instance)
@@ -907,6 +933,9 @@ public partial class @PlayerInputAction: IInputActionCollection2, IDisposable
             @SwitchGravity.started -= instance.OnSwitchGravity;
             @SwitchGravity.performed -= instance.OnSwitchGravity;
             @SwitchGravity.canceled -= instance.OnSwitchGravity;
+            @SetNewGravity.started -= instance.OnSetNewGravity;
+            @SetNewGravity.performed -= instance.OnSetNewGravity;
+            @SetNewGravity.canceled -= instance.OnSetNewGravity;
         }
 
         public void RemoveCallbacks(IPlayerActions instance)
@@ -1093,6 +1122,7 @@ public partial class @PlayerInputAction: IInputActionCollection2, IDisposable
         void OnCamera(InputAction.CallbackContext context);
         void OnJump(InputAction.CallbackContext context);
         void OnSwitchGravity(InputAction.CallbackContext context);
+        void OnSetNewGravity(InputAction.CallbackContext context);
     }
     public interface IUIActions
     {

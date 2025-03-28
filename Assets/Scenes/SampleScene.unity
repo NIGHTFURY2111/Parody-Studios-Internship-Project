@@ -607,7 +607,7 @@ MonoBehaviour:
   m_LookAt: {fileID: 0}
   m_Follow: {fileID: 0}
   m_Lens:
-    FieldOfView: 40
+    FieldOfView: 60
     OrthographicSize: 10
     NearClipPlane: 0.01
     FarClipPlane: 5000
@@ -633,8 +633,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 171740410}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.3296699, y: 0, z: 0, w: 0.94409627}
-  m_LocalPosition: {x: 0, y: 0, z: -0.00000023841858}
+  m_LocalRotation: {x: -0.3747324, y: 0, z: 0, w: 0.927133}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1365,7 +1365,7 @@ Camera:
     height: 1
   near clip plane: 0.01
   far clip plane: 5000
-  field of view: 40
+  field of view: 60
   orthographic: 0
   orthographic size: 10
   m_Depth: -1
@@ -1391,8 +1391,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.32966986, y: 0.00000008253553, z: 0.000000028820658, w: 0.9440963}
-  m_LocalPosition: {x: -0.08, y: 0.62500036, z: -2.32}
+  m_LocalRotation: {x: -0.3747324, y: 0.000000027630723, z: 0.000000011167897, w: 0.9271331}
+  m_LocalPosition: {x: 0.37, y: 0.42000008, z: -2.32}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1461,7 +1461,7 @@ MonoBehaviour:
   m_UpdateMethod: 0
   m_BlendUpdateMethod: 0
   m_DefaultBlend:
-    m_Style: 1
+    m_Style: 0
     m_Time: 2
     m_CustomCurve:
       serializedVersion: 2
@@ -1553,6 +1553,7 @@ GameObject:
   - component: {fileID: 341654791}
   - component: {fileID: 341654795}
   - component: {fileID: 341654796}
+  - component: {fileID: 341654797}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -1624,6 +1625,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 543450653259175915}
+  - {fileID: 599066678}
   - {fileID: 357221167}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1660,20 +1662,132 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 487eae2c2d3112047a9a0990734b35e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: {fileID: 0}
   gravity: 20
   walkingSpeed: 5
   jumpSpeed: 8
   forceAppliedInAir: 5
-  TimerInAirBeforeGameOver: 7.5
+  timeInAirBeforeGameOver: 5
   PlayerModel: {fileID: 919132149603880273}
-  playerCamera: {fileID: 1909964283}
-  playerCameraFollowPoint: {fileID: 357221166}
   lookXLimit: 45
   lookSpeed: 0.2
   gravityPreview: {fileID: 599066677}
-  maxGravitySwitchingVelocityClamp: 30
+  maxVelocityClampWhenGravitySwitching: 10
   gravityChangeTime: 0.2
+--- !u!114 &341654797
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 341654789}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Actions: {fileID: -944628639613478452, guid: 53807ce6834a2c2479d66a3270488a52,
+    type: 3}
+  m_NotificationBehavior: 2
+  m_UIInputModule: {fileID: 0}
+  m_DeviceLostEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_DeviceRegainedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ControlsChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ActionEvents:
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 673d676c-0076-463b-aacb-72fb45a313e7
+    m_ActionName: Player/Movement[/Keyboard/w,/Keyboard/s,/Keyboard/a,/Keyboard/d]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 2a7a496d-2ef1-4453-9eff-f19bd8ca7709
+    m_ActionName: Player/Camera[/Mouse/delta]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 56f6b3e2-a7b3-4191-a795-9bd34302decc
+    m_ActionName: Player/Jump[/Keyboard/space]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 341654796}
+        m_TargetAssemblyTypeName: PlayerStateMachine, Assembly-CSharp
+        m_MethodName: VisualizeGravityChange
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: ff531d4c-de26-4392-8303-c9c64ed1e9c4
+    m_ActionName: Player/Switch Gravity[/Keyboard/upArrow,/Keyboard/downArrow,/Keyboard/leftArrow,/Keyboard/rightArrow]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 341654796}
+        m_TargetAssemblyTypeName: PlayerStateMachine, Assembly-CSharp
+        m_MethodName: SetNewGravityDirection
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 04626b06-53b7-4ce3-8efb-78cf2cdf4dd3
+    m_ActionName: Player/Set New Gravity[/Keyboard/enter]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 6114ed16-e14c-43cf-b18e-fe504031a4b7
+    m_ActionName: UI/Navigate[/Keyboard/w,/Keyboard/upArrow,/Keyboard/s,/Keyboard/downArrow,/Keyboard/a,/Keyboard/leftArrow,/Keyboard/d,/Keyboard/rightArrow]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 24b2b431-d7c3-43cb-ac3f-51d59392836f
+    m_ActionName: UI/Submit[/Keyboard/enter]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 7de75a8a-9f54-4525-a5fa-a0cf72ac8d74
+    m_ActionName: UI/Cancel[/Keyboard/escape]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: ec082a25-d5e3-48db-84dd-7327b8674d85
+    m_ActionName: UI/Point[/Mouse/position]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 1603427c-bdc4-46b1-b520-c5473548e767
+    m_ActionName: UI/Click[/Mouse/leftButton]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 40816272-3f2a-4bb9-958f-b321907a0e0a
+    m_ActionName: UI/ScrollWheel[/Mouse/scroll]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: e1862653-386f-47b6-bd44-877c713fc298
+    m_ActionName: UI/MiddleClick[/Mouse/middleButton]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: dbd99432-4fb6-4c8c-b117-e3970a4f2740
+    m_ActionName: UI/RightClick[/Mouse/rightButton]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: f907407d-4c1d-4b2a-a6d0-077031e77e98
+    m_ActionName: UI/TrackedDevicePosition
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 0b34ffd8-0d4f-492d-b6c2-2b01c32ce804
+    m_ActionName: UI/TrackedDeviceOrientation
+  m_NeverAutoSwitchControlSchemes: 0
+  m_DefaultControlScheme: 
+  m_DefaultActionMap: Player
+  m_SplitScreenIndex: -1
+  m_Camera: {fileID: 0}
 --- !u!1 &346597726
 GameObject:
   m_ObjectHideFlags: 0
@@ -1980,7 +2094,7 @@ MonoBehaviour:
   m_LookAt: {fileID: 0}
   m_Follow: {fileID: 0}
   m_Lens:
-    FieldOfView: 40
+    FieldOfView: 60
     OrthographicSize: 10
     NearClipPlane: 0.01
     FarClipPlane: 5000
@@ -2006,7 +2120,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 379383577}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.29515803, y: 0, z: 0, w: 0.95544845}
+  m_LocalRotation: {x: -0.32085076, y: 0, z: 0, w: 0.9471298}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -2749,6 +2863,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 599066678}
+  - component: {fileID: 599066679}
   m_Layer: 0
   m_Name: GravityVisualizer
   m_TagString: Untagged
@@ -2764,14 +2879,35 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 599066677}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.641, y: 2.42, z: 0.17}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -1.1921492, y: 0, z: 0}
+  m_LocalScale: {x: 0.7637086, y: 0.75316423, z: 0.7637086}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1628940704}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 341654793}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!95 &599066679
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 599066677}
+  m_Enabled: 1
+  m_Avatar: {fileID: 9000000, guid: ed90e1a4d04c24048b63faeb908d56c1, type: 3}
+  m_Controller: {fileID: 9100000, guid: 768a7bd2d2b41b0479c56a96639ba4c1, type: 2}
+  m_CullingMode: 1
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 1
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &604430045
 GameObject:
   m_ObjectHideFlags: 3
@@ -2846,15 +2982,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BindingMode: 3
-  m_FollowOffset: {x: 0, y: 0.4, z: -2.49}
-  m_XDamping: 1
-  m_YDamping: 1
-  m_ZDamping: 1
-  m_AngularDampingMode: 0
-  m_PitchDamping: 0
-  m_YawDamping: 0
-  m_RollDamping: 0
-  m_AngularDamping: 0
+  m_FollowOffset: {x: 0, y: -2, z: -2.49}
+  m_XDamping: 0.2
+  m_YDamping: 0.2
+  m_ZDamping: 0.2
+  m_AngularDampingMode: 1
+  m_PitchDamping: 1
+  m_YawDamping: 1
+  m_RollDamping: 1
+  m_AngularDamping: 1
   m_Heading:
     m_Definition: 2
     m_VelocityFilterStrength: 4
@@ -3187,15 +3323,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BindingMode: 3
-  m_FollowOffset: {x: 0, y: 0.4, z: -2.49}
-  m_XDamping: 1
-  m_YDamping: 1
-  m_ZDamping: 1
-  m_AngularDampingMode: 0
-  m_PitchDamping: 0
-  m_YawDamping: 0
-  m_RollDamping: 0
-  m_AngularDamping: 0
+  m_FollowOffset: {x: 0, y: -2, z: -2.49}
+  m_XDamping: 0.2
+  m_YDamping: 0.2
+  m_ZDamping: 0.2
+  m_AngularDampingMode: 1
+  m_PitchDamping: 1
+  m_YawDamping: 1
+  m_RollDamping: 1
+  m_AngularDamping: 1
   m_Heading:
     m_Definition: 2
     m_VelocityFilterStrength: 4
@@ -4496,8 +4632,8 @@ Transform:
   m_GameObject: {fileID: 967953311}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 19.431564, y: -4.121241, z: 15.7771635}
-  m_LocalScale: {x: 7.2579, y: 0.09672296, z: 7.2579}
+  m_LocalPosition: {x: 19.431564, y: -4.37, z: 15.7771635}
+  m_LocalScale: {x: 50.303055, y: 0.6703675, z: 50.303055}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 909295232}
@@ -7836,7 +7972,7 @@ MonoBehaviour:
   m_LookAt: {fileID: 0}
   m_Follow: {fileID: 0}
   m_Lens:
-    FieldOfView: 40
+    FieldOfView: 60
     OrthographicSize: 10
     NearClipPlane: 0.01
     FarClipPlane: 5000
@@ -7862,8 +7998,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1791704088}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.31248835, y: 0, z: 0, w: 0.9499216}
-  m_LocalPosition: {x: 0, y: 0, z: -0.00000023841858}
+  m_LocalRotation: {x: -0.3480246, y: 0, z: 0, w: 0.9374854}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -8233,10 +8369,10 @@ MonoBehaviour:
   m_Priority: 10
   m_StandbyUpdate: 2
   m_LookAt: {fileID: 357221167}
-  m_Follow: {fileID: 543450653259175915}
+  m_Follow: {fileID: 341654793}
   m_CommonLens: 1
   m_Lens:
-    FieldOfView: 40
+    FieldOfView: 60
     OrthographicSize: 10
     NearClipPlane: 0.01
     FarClipPlane: 5000
@@ -8257,7 +8393,7 @@ MonoBehaviour:
     Value: 0
     m_SpeedMode: 0
     m_MaxSpeed: 3
-    m_AccelTime: 0.2
+    m_AccelTime: 0.05
     m_DecelTime: 0.1
     m_InputAxisName: Mouse Y
     m_InputAxisValue: 0
@@ -8281,7 +8417,7 @@ MonoBehaviour:
     Value: 0
     m_SpeedMode: 0
     m_MaxSpeed: 250
-    m_AccelTime: 0.1
+    m_AccelTime: 0.05
     m_DecelTime: 0.1
     m_InputAxisName: Mouse X
     m_InputAxisValue: 0
@@ -8306,13 +8442,13 @@ MonoBehaviour:
     m_LegacyHeadingDefinition: -1
     m_LegacyVelocityFilterStrength: -1
   m_BindingMode: 3
-  m_SplineCurvature: 0.2
+  m_SplineCurvature: 0.5
   m_Orbits:
-  - m_Height: 4.5
+  - m_Height: 2.29
     m_Radius: 1.75
-  - m_Height: 2.5
+  - m_Height: 0
     m_Radius: 3
-  - m_Height: 0.4
+  - m_Height: -2
     m_Radius: 2.49
   m_LegacyHeadingBias: 3.4028235e+38
   m_Rigs:
@@ -8328,7 +8464,7 @@ Transform:
   m_GameObject: {fileID: 1909964282}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.08, y: 0.62500036, z: -2.32}
+  m_LocalPosition: {x: -0.08, y: 0.42000008, z: -2.32}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -8344,7 +8480,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1909964282}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 44d70cc20219cd84593f67d248eafe36, type: 3}
   m_Name: 
@@ -8379,8 +8515,8 @@ MonoBehaviour:
   m_Strategy: 0
   m_MaximumEffort: 4
   m_SmoothingTime: 0
-  m_Damping: 0.6
-  m_DampingWhenOccluded: 0.6
+  m_Damping: 0.3
+  m_DampingWhenOccluded: 0.3
   m_OptimalTargetDistance: 0
 --- !u!1 &1934019759
 GameObject:
@@ -8687,15 +8823,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BindingMode: 3
-  m_FollowOffset: {x: 0, y: 0.4, z: -2.49}
-  m_XDamping: 1
-  m_YDamping: 1
-  m_ZDamping: 1
-  m_AngularDampingMode: 0
-  m_PitchDamping: 0
-  m_YawDamping: 0
-  m_RollDamping: 0
-  m_AngularDamping: 0
+  m_FollowOffset: {x: 0, y: -2, z: -2.49}
+  m_XDamping: 0.2
+  m_YDamping: 0.2
+  m_ZDamping: 0.2
+  m_AngularDampingMode: 1
+  m_PitchDamping: 1
+  m_YawDamping: 1
+  m_RollDamping: 1
+  m_AngularDamping: 1
   m_Heading:
     m_Definition: 2
     m_VelocityFilterStrength: 4
@@ -14447,4 +14583,3 @@ SceneRoots:
   - {fileID: 2041090160}
   - {fileID: 1909964284}
   - {fileID: 341654793}
-  - {fileID: 599066678}

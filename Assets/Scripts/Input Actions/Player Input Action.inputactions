@@ -40,6 +40,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
+                },
+                {
+                    "name": "Set New Gravity",
+                    "type": "Button",
+                    "id": "04626b06-53b7-4ce3-8efb-78cf2cdf4dd3",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -174,6 +183,17 @@
                     "action": "Switch Gravity",
                     "isComposite": false,
                     "isPartOfComposite": true
+                },
+                {
+                    "name": "",
+                    "id": "d039992d-6537-4966-a781-cde49880111b",
+                    "path": "<Keyboard>/enter",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Set New Gravity",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         },
